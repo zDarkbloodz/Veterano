@@ -51,8 +51,18 @@ Slate BG:       #1E293B    /* Card backgrounds */
 
 - Node.js 18.x or higher
 - npm or yarn
-- (Optional) OpenAI API key for resume analysis
-- (Optional) Indeed Publisher ID for job listings
+
+### Optional API Keys (All FREE tier available)
+
+The platform works immediately with:
+- ✅ **RemoteOK** for job listings (no auth required)
+- ✅ **Mock data** for resume analysis
+
+For production, we recommend these FREE APIs:
+- 🚀 **Groq API** - AI resume analysis (14,400 requests/day, FREE)
+- 📋 **Adzuna API** - Job listings (5,000 requests/month, FREE)
+
+See [API_SETUP_GUIDE.md](./API_SETUP_GUIDE.md) for detailed setup instructions.
 
 ### Installation
 
@@ -75,21 +85,31 @@ Copy `.env.example` to `.env.local` and fill in your credentials:
 cp .env.example .env.local
 ```
 
-Edit `.env.local`:
+Edit `.env.local` (add your API keys):
 ```env
-# Supabase (Database & Auth) - Optional for MVP
+# AI Resume Analysis - Choose one or both (all FREE tier)
+GROQ_API_KEY=your_groq_api_key_here          # RECOMMENDED - Fast & free
+OPENAI_API_KEY=your_openai_api_key_here      # Optional fallback
+
+# Job Listings - Optional (free tiers available)
+ADZUNA_APP_ID=your_adzuna_app_id_here        # RECOMMENDED - 5K/month free
+ADZUNA_APP_KEY=your_adzuna_app_key_here      # Falls back to RemoteOK automatically
+
+# Database - Optional (for future features)
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# OpenAI (AI Features) - Optional, uses mock data if not provided
-OPENAI_API_KEY=your_openai_api_key
-
-# Indeed API (Job Listings) - Optional, uses mock data if not provided
-INDEED_PUBLISHER_ID=your_indeed_publisher_id
 
 # App Config
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
+
+**Quick Start (2 minutes):**
+1. Get Groq API key from https://console.groq.com (FREE, no credit card)
+2. Add to `.env.local`: `GROQ_API_KEY=your_key_here`
+3. Restart dev server
+4. Done! Full AI-powered resume analysis ready 🎉
+
+See [API_SETUP_GUIDE.md](./API_SETUP_GUIDE.md) for detailed setup instructions.
 
 4. **Run the development server**
 ```bash
@@ -145,9 +165,14 @@ veterano/
 - **Authentication**: Supabase Auth
 - **File Storage**: Supabase Storage
 
-### APIs
-- **AI Analysis**: OpenAI GPT-4
-- **Job Listings**: Indeed API (with mock data fallback)
+### APIs (All with FREE tiers)
+- **AI Analysis**:
+  - Groq (Llama 3.1 70B) - Primary, ultra-fast, FREE
+  - OpenAI (GPT-4o-mini) - Fallback, paid but affordable
+- **Job Listings**:
+  - Adzuna API - Primary, FREE tier (5K/month)
+  - RemoteOK - Automatic fallback, always FREE
+  - Mock Data - Final fallback
 
 ## 📖 API Documentation
 
@@ -175,6 +200,10 @@ Analyzes a resume and provides feedback.
     "civilianTranslation": {
       "militaryTerms": [...]
     }
+  },
+  "metadata": {
+    "provider": "groq",  // or "openai" or "mock"
+    "timestamp": "2025-10-27T..."
   }
 }
 ```
@@ -185,14 +214,20 @@ Fetches job listings.
 
 **Query Parameters:**
 - `q` - Search query (default: "software engineer")
-- `location` - Location filter
+- `location` - Location filter (default: "us")
 - `veteran_friendly` - Boolean filter for veteran-friendly jobs
 
 **Response:**
 ```json
 {
   "data": [...],
-  "total": 5
+  "total": 5,
+  "metadata": {
+    "source": "adzuna",  // or "remoteok" or "mock"
+    "query": "software engineer",
+    "veteranFriendly": false,
+    "timestamp": "2025-10-27T..."
+  }
 }
 ```
 
@@ -247,11 +282,21 @@ The app can be deployed to any platform that supports Next.js:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
+| **AI Resume Analysis** | | |
+| `GROQ_API_KEY` | No (Recommended) | Groq API key - FREE, 14,400 req/day (Primary) |
+| `OPENAI_API_KEY` | No | OpenAI API key - Paid fallback option |
+| **Job Listings** | | |
+| `ADZUNA_APP_ID` | No (Recommended) | Adzuna App ID - FREE, 5K calls/month |
+| `ADZUNA_APP_KEY` | No (Recommended) | Adzuna API Key - Works with App ID |
+| **Database (Future)** | | |
 | `NEXT_PUBLIC_SUPABASE_URL` | No | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anonymous key |
-| `OPENAI_API_KEY` | No | OpenAI API key (uses mock data if not provided) |
-| `INDEED_PUBLISHER_ID` | No | Indeed API publisher ID (uses mock data if not provided) |
-| `NEXT_PUBLIC_APP_URL` | No | Application URL |
+| **App Config** | | |
+| `NEXT_PUBLIC_APP_URL` | No | Application URL (default: localhost:3000) |
+
+**Note:** The platform works out-of-the-box without any API keys using RemoteOK (jobs) and mock data (resume analysis). Add Groq API key for production-ready AI analysis (takes 2 minutes, FREE).
+
+See [API_SETUP_GUIDE.md](./API_SETUP_GUIDE.md) for detailed setup instructions.
 
 ## 📝 Database Schema
 
