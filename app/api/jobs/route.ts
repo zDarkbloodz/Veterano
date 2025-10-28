@@ -146,12 +146,19 @@ async function fetchHimalayas(): Promise<JobResult[]> {
       timeout: 10000,
     });
 
-    const jobs = response.data || [];
+    // Himalayas returns {jobs: [...]} or sometimes just an array
+    const jobsData = response.data?.jobs || response.data;
+    const jobs = Array.isArray(jobsData) ? jobsData : [];
+
+    if (jobs.length === 0) {
+      console.log("Himalayas API returned no jobs");
+      return [];
+    }
 
     return jobs.slice(0, 50).map((job: any) => ({
-      id: `himalayas-${job.id}`,
-      title: job.title,
-      company: job.company?.name || "Unknown Company",
+      id: `himalayas-${job.id || Date.now()}`,
+      title: job.title || "Untitled Position",
+      company: job.company?.name || job.company || "Unknown Company",
       location: job.location || "Remote",
       type: "full-time",
       experience: "mid",
@@ -161,9 +168,9 @@ async function fetchHimalayas(): Promise<JobResult[]> {
       veteranFriendly: false,
       veteranPreference: false,
       securityClearance: "none",
-      postedAt: new Date(job.pubDate || Date.now()),
+      postedAt: new Date(job.pubDate || job.created_at || Date.now()),
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      applyUrl: job.url,
+      applyUrl: job.url || job.link || "",
       source: "himalayas",
       tags: [job.category || "tech"],
       salary: undefined,
