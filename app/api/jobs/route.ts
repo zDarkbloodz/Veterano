@@ -155,8 +155,8 @@ async function fetchHimalayas(): Promise<JobResult[]> {
       return [];
     }
 
-    return jobs.slice(0, 50).map((job: any) => ({
-      id: `himalayas-${job.id || Date.now()}`,
+    return jobs.slice(0, 50).map((job: any, index: number) => ({
+      id: `himalayas-${job.id || `${Date.now()}-${index}`}`,
       title: job.title || "Untitled Position",
       company: job.company?.name || job.company || "Unknown Company",
       location: job.location || "Remote",
@@ -407,8 +407,8 @@ async function fetchRemoteOK(query: string): Promise<JobResult[]> {
         )
       : jobs;
 
-    return filteredJobs.slice(0, 20).map((job: any) => ({
-      id: `remoteok-${job.id || job.slug}`,
+    return filteredJobs.slice(0, 20).map((job: any, index: number) => ({
+      id: `remoteok-${job.id || job.slug || `${Date.now()}-${index}`}`,
       title: job.position || "Untitled Position",
       company: job.company || "Unknown Company",
       location: job.location || "Remote",
